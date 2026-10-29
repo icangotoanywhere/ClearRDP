@@ -68,7 +68,10 @@ jobs:
         run: ./gradlew assembleRelease --no-daemon
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk "ClearRDP-${{ steps.ver.outputs.tag }}.apk"
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk "ClearRDP-${{ steps.ver.outputs.tag }}.apk"
+          # fixed name, so .../releases/latest/download/ClearRDP.apk always points at the newest version
+          cp app/build/outputs/apk/release/app-release.apk ClearRDP.apk
 
       - uses: actions/upload-artifact@v5
         with:
@@ -87,4 +90,18 @@ jobs:
 
             下载下面的 `ClearRDP-${{ steps.ver.outputs.tag }}.apk` 安装即可（Android 10 及以上，64 位手机）。
             使用说明见 [README](https://github.com/${{ github.repository }}#readme)。
-          files: ClearRDP-${{ steps.ver.outputs.tag }}.apk
+          files: |
+            ClearRDP-${{ steps.ver.outputs.tag }}.apk
+            ClearRDP.apk
+
+      - name: Add fixed-name APK to an existing release
+        if: steps.ver.outputs.release != 'true' && env.CLEARRDP_KEYSTORE != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=${{ steps.ver.outputs.tag }}
+          if gh release view "$TAG" --json assets --jq '.assets[].name' | grep -qx 'ClearRDP.apk'; then
+            echo "ClearRDP.apk already on $TAG"
+          else
+            gh release upload "$TAG" ClearRDP.apk
+          fi

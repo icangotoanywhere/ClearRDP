@@ -5,6 +5,13 @@
 <p align="center">一个专为竖屏手机设计的 Android 远程桌面（RDP）客户端：<br>
 <b>键盘永远不会挡住远程桌面。</b></p>
 
+<p align="center">
+  <a href="https://github.com/icangotoanywhere/ClearRDP/releases/latest/download/ClearRDP.apk"><b>⬇ 下载 APK（最新版）</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/icangotoanywhere/ClearRDP/releases">所有版本</a>
+</p>
+<p align="center"><sub>Android 10 及以上 · 64 位手机</sub></p>
+
 ---
 
 ## 为什么做这个
@@ -48,7 +55,7 @@
 
 ## 下载
 
-到 [Releases](../../releases) 页下载最新的 `ClearRDP-vX.Y.apk`。
+直接下载最新版：[ClearRDP.apk](https://github.com/icangotoanywhere/ClearRDP/releases/latest/download/ClearRDP.apk)，历史版本见 [Releases](https://github.com/icangotoanywhere/ClearRDP/releases)。
 
 ## 自己编译
 
