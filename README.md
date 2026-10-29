@@ -9,6 +9,8 @@
   <a href="https://github.com/icangotoanywhere/ClearRDP/releases/latest/download/ClearRDP.apk"><b>⬇ 下载 APK（最新版）</b></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/icangotoanywhere/ClearRDP/releases">所有版本</a>
+  &nbsp;·&nbsp;
+  <a href="PRIVACY.md">隐私政策</a>
 </p>
 <p align="center"><sub>Android 10 及以上 · 64 位手机</sub></p>
 
@@ -74,6 +76,10 @@
 - RDP 协议、加解密和画面编解码由 [FreeRDP](https://github.com/FreeRDP/FreeRDP) 3.32.1 完成。为了省去在本地交叉编译整套 C 库，本项目直接使用 F-Droid 上官方 aFreeRDP 安装包里的 arm64 原生库。
 - `com.freerdp.freerdpcore.services.LibFreeRDP` 是 JNI 接口类，原生库按名字调用其中的方法，所以包名、类名和方法签名都必须保持原样。
 - 界面部分是纯 Java + Android SDK，没有第三方依赖。
+
+## 隐私
+
+本应用不收集、不上传任何个人信息，只连接你自己填写的电脑。详见[隐私政策](PRIVACY.md)。
 
 ## 许可
 

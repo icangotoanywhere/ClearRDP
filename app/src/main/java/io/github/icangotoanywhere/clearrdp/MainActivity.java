@@ -25,6 +25,8 @@ import java.util.List;
 public class MainActivity extends Activity
 {
 	static final int[] SCALES = { 100, 125, 150, 175, 200, 250, 300 };
+	static final String PRIVACY_URL =
+	    "https://github.com/icangotoanywhere/ClearRDP/blob/main/PRIVACY.md";
 
 	private HostStore store;
 	private LinearLayout list;
@@ -68,6 +70,25 @@ public class MainActivity extends Activity
 		add.setTextSize(16);
 		add.setOnClickListener(v -> edit(null));
 		root.addView(add, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, px(52)));
+
+		TextView privacy = new TextView(this);
+		privacy.setText("隐私政策");
+		privacy.setTextColor(0xFF7FA6FF);
+		privacy.setTextSize(13);
+		privacy.setGravity(Gravity.CENTER);
+		privacy.setPadding(0, px(10), 0, px(2));
+		privacy.setOnClickListener(v -> {
+			try
+			{
+				startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(PRIVACY_URL)));
+			}
+			catch (Exception e)
+			{
+				Toast.makeText(this, PRIVACY_URL, Toast.LENGTH_LONG).show();
+			}
+		});
+		root.addView(privacy, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+		                                                    ViewGroup.LayoutParams.WRAP_CONTENT));
 
 		setContentView(root);
 	}
