@@ -16,8 +16,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      GITCODE_TOKEN: ${{ secrets.GITCODE_TOKEN }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -116,15 +114,3 @@ jobs:
             gh release upload "$TAG" ClearRDP.apk
           fi
 
-      - name: Publish to GitCode (mirror for users in China)
-        if: env.CLEARRDP_KEYSTORE != '' && env.GITCODE_TOKEN != ''
-        timeout-minutes: 45
-        env:
-          GITCODE_REPO: vibrating/ClearRDP
-        run: |
-          TAG=${{ steps.ver.outputs.tag }}
-          # an existing release keeps pointing at its own tag's commit
-          git fetch -q --tags origin
-          SHA=$(git rev-list -n1 "$TAG" 2>/dev/null || echo "$GITHUB_SHA")
-          # one file only: the upload crosses into China and is slow
-          ./scripts/publish-gitcode.sh "$TAG" "$SHA" "ClearRDP-$TAG.apk"

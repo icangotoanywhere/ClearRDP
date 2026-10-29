@@ -61,7 +61,7 @@
 
 直接下载最新版：[ClearRDP.apk](https://github.com/icangotoanywhere/ClearRDP/releases/latest/download/ClearRDP.apk)，历史版本见 [Releases](https://github.com/icangotoanywhere/ClearRDP/releases)。
 
-国内网络访问 GitHub 较慢的话，可以到 GitCode 镜像下载：[gitcode.com/vibrating/ClearRDP/releases](https://gitcode.com/vibrating/ClearRDP/releases)（与 GitHub 同步发布）。
+国内网络访问 GitHub 较慢的话，可以到 GitCode 镜像下载：[gitcode.com/vibrating/ClearRDP/releases](https://gitcode.com/vibrating/ClearRDP/releases)。
 
 ## 自己编译
 
