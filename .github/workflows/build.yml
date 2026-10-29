@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Read version
         id: ver
@@ -38,7 +38,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           HAS_KEY: ${{ secrets.CLEARRDP_KEYSTORE_B64 }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -70,7 +70,7 @@ jobs:
       - name: Rename APK
         run: cp app/build/outputs/apk/release/app-release.apk "ClearRDP-${{ steps.ver.outputs.tag }}.apk"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ClearRDP-${{ steps.ver.outputs.tag }}.apk
           path: ClearRDP-${{ steps.ver.outputs.tag }}.apk
