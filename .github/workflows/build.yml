@@ -47,6 +47,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # the 89 MB F-Droid package is fetched once and then kept in the Actions cache
+      - uses: actions/cache@v4
+        with:
+          path: dl
+          key: afreerdp-3320103
+
       - name: Fetch FreeRDP native libraries
         run: ./scripts/fetch-freerdp-libs.sh
 
@@ -120,4 +126,5 @@ jobs:
           # an existing release keeps pointing at its own tag's commit
           git fetch -q --tags origin
           SHA=$(git rev-list -n1 "$TAG" 2>/dev/null || echo "$GITHUB_SHA")
-          ./scripts/publish-gitcode.sh "$TAG" "$SHA" "ClearRDP-$TAG.apk" ClearRDP.apk
+          # one file only: the upload crosses into China and is slow
+          ./scripts/publish-gitcode.sh "$TAG" "$SHA" "ClearRDP-$TAG.apk"
