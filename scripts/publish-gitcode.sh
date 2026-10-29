@@ -17,7 +17,7 @@ call() {
   local method=$1 url=$2; shift 2
   local out code
   out=$(mktemp)
-  code=$(curl -sS -o "$out" -w '%{http_code}' -X "$method" "$url" "$@") || { rm -f "$out"; return 1; }
+  code=$(curl -sS --connect-timeout 20 --max-time 60 -o "$out" -w '%{http_code}' -X "$method" "$url" "$@") || { rm -f "$out"; return 1; }
   cat "$out"; rm -f "$out"
   [ "$code" -ge 200 ] && [ "$code" -lt 300 ]
 }
@@ -65,11 +65,26 @@ for f in "$@"; do
   url=$(echo "$UP" | jq -r '.url')
   hdrs=()
   while IFS= read -r h; do hdrs+=(-H "$h"); done < <(echo "$UP" | jq -r '.headers | to_entries[] | "\(.key): \(.value)"')
-  code=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT "${hdrs[@]}" --data-binary "@$f" "$url")
-  if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
-    echo "  uploaded $name"
-  else
-    echo "::error::GitCode upload of $name failed (HTTP $code)"
+  # no "Expect: 100-continue" handshake (object storage may never answer it), hard
+  # time limits so a stalled cross-border upload fails fast instead of hanging
+  ok=
+  for try in 1 2 3; do
+    resp=$(mktemp)
+    t0=$(date +%s)
+    code=$(curl -sS -H 'Expect:' --connect-timeout 30 --max-time 600 \
+                -o "$resp" -w '%{http_code}' -X PUT "${hdrs[@]}" --data-binary "@$f" "$url" || echo 000)
+    echo "  $name: try $try -> HTTP $code in $(( $(date +%s) - t0 ))s"
+    if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then ok=1; rm -f "$resp"; break; fi
+    head -c 500 "$resp"; echo; rm -f "$resp"
+    sleep 10
+    # a fresh signed URL for the retry
+    UP=$(call GET "${API}/releases/${TAG}/upload_url?${AUTH}&file_name=${name}")
+    url=$(echo "$UP" | jq -r '.url')
+    hdrs=()
+    while IFS= read -r h; do hdrs+=(-H "$h"); done < <(echo "$UP" | jq -r '.headers | to_entries[] | "\(.key): \(.value)"')
+  done
+  if [ -z "$ok" ]; then
+    echo "::error::GitCode upload of $name failed"
     exit 1
   fi
 done

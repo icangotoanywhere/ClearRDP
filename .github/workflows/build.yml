@@ -112,6 +112,7 @@ jobs:
 
       - name: Publish to GitCode (mirror for users in China)
         if: env.CLEARRDP_KEYSTORE != '' && env.GITCODE_TOKEN != ''
+        timeout-minutes: 45
         env:
           GITCODE_REPO: vibrating/ClearRDP
         run: |
