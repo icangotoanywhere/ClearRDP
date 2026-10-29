@@ -1,4 +1,4 @@
-package com.rdpsplit;
+package io.github.icangotoanywhere.clearrdp;
 
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -3,15 +3,15 @@ plugins {
 }
 
 android {
-    namespace = "com.rdpsplit"
+    namespace = "io.github.icangotoanywhere.clearrdp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.rdpsplit"
+        applicationId = "io.github.icangotoanywhere.clearrdp"
         minSdk = 29
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
         ndk {
             abiFilters += listOf("arm64-v8a")
         }

@@ -1,4 +1,4 @@
-package com.rdpsplit;
+package io.github.icangotoanywhere.clearrdp;
 
 import android.view.KeyEvent;
 
