@@ -1,0 +1,90 @@
+name: Build and release APK
+
+# Every push to main builds the APK. If the versionName in app/build.gradle.kts has
+# no release yet, the workflow creates the tag v<versionName> and publishes a
+# release with the APK attached — so bumping the version and pushing is all it
+# takes to ship a new version.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: ver
+        run: |
+          V=$(sed -n 's/.*versionName *= *"\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "tag=v$V" >> "$GITHUB_OUTPUT"
+          if [ -z "$HAS_KEY" ]; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Signing secrets are not set: build only, nothing is published."
+          elif gh release view "v$V" >/dev/null 2>&1; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "Release v$V already exists: build only."
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HAS_KEY: ${{ secrets.CLEARRDP_KEYSTORE_B64 }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Fetch FreeRDP native libraries
+        run: ./scripts/fetch-freerdp-libs.sh
+
+      - name: Use the official Gradle download server
+        run: sed -i 's#^distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.11.1-bin.zip#' gradle/wrapper/gradle-wrapper.properties
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.CLEARRDP_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "CLEARRDP_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          else
+            echo "No signing secret: building with a throw-away debug key."
+          fi
+
+      - name: Build
+        env:
+          CLEARRDP_KEYSTORE_PASSWORD: ${{ secrets.CLEARRDP_KEYSTORE_PASSWORD }}
+          CLEARRDP_KEY_ALIAS: ${{ secrets.CLEARRDP_KEY_ALIAS }}
+          CLEARRDP_KEY_PASSWORD: ${{ secrets.CLEARRDP_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/release/app-release.apk "ClearRDP-${{ steps.ver.outputs.tag }}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClearRDP-${{ steps.ver.outputs.tag }}.apk
+          path: ClearRDP-${{ steps.ver.outputs.tag }}.apk
+
+      - name: Publish release
+        if: steps.ver.outputs.release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: 无遮远程 ClearRDP ${{ steps.ver.outputs.tag }}
+          body: |
+            无遮远程 ClearRDP ${{ steps.ver.outputs.tag }}
+
+            下载下面的 `ClearRDP-${{ steps.ver.outputs.tag }}.apk` 安装即可（Android 10 及以上，64 位手机）。
+            使用说明见 [README](https://github.com/${{ github.repository }}#readme)。
+          files: ClearRDP-${{ steps.ver.outputs.tag }}.apk
