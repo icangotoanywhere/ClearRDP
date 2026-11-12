@@ -17,25 +17,30 @@ android {
         }
     }
 
-    // Release signing: set CLEARRDP_KEYSTORE (path), CLEARRDP_KEYSTORE_PASSWORD,
-    // CLEARRDP_KEY_ALIAS and CLEARRDP_KEY_PASSWORD; otherwise the debug key is used.
-    val ksPath = System.getenv("CLEARRDP_KEYSTORE")
+    // Release signing always uses the fixed key committed in keystore/clearrdp-release.p12,
+    // so every build — local or GitHub Actions — carries the same signature and installs
+    // over the previous version. Every release so far (1.0–1.3) was signed with this key:
+    // certificate SHA-256 33:BF:16:75:…:2B:08:30. Do not replace it, or users would have to
+    // uninstall before updating.
     signingConfigs {
-        if (!ksPath.isNullOrEmpty() && file(ksPath).exists()) {
-            create("release") {
-                storeFile = file(ksPath)
-                storePassword = System.getenv("CLEARRDP_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("CLEARRDP_KEY_ALIAS")
-                keyPassword = System.getenv("CLEARRDP_KEY_PASSWORD")
-            }
+        create("release") {
+            storeFile = rootProject.file("keystore/clearrdp-release.p12")
+            storeType = "pkcs12"
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
         }
     }
 
     buildTypes {
+        debug {
+            // same key as release, so a debug build can be installed over a release and back
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             // must stay off: the FreeRDP native library calls Java methods by name
             isMinifyEnabled = false
-            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

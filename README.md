@@ -75,6 +75,8 @@
 
 每次推送到 main，GitHub Actions 都会自动编译。如果 `app/build.gradle.kts` 里的 `versionName` 还没有对应的 Release，就会自动建 `v版本号` 标签并发布，APK 挂在 Release 上。
 
+签名使用仓库里的固定密钥 [`keystore/clearrdp-release.p12`](keystore/README.md)，本地编译和云端编译出来的 APK 签名完全相同，新版本总能直接覆盖安装。
+
 ## 技术说明
 
 - RDP 协议、加解密和画面编解码由 [FreeRDP](https://github.com/FreeRDP/FreeRDP) 3.32.1 完成。为了省去在本地交叉编译整套 C 库，本项目直接使用 F-Droid 上官方 aFreeRDP 安装包里的 arm64 原生库。
